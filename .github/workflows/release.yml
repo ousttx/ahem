@@ -63,9 +63,14 @@ jobs:
           mkdir release
           bundle=src-tauri/target/release/bundle
           if [ "${{ matrix.name }}" = macos ]; then
-            cp "$bundle"/dmg/*.dmg "$bundle"/macos/*.app.tar.gz "$bundle"/macos/*.app.tar.gz.sig release/
+            # The installers get fixed names: the site links to releases/latest/download/<name>.
+            # A glob that matches two files makes cp fail, which is wanted.
+            cp "$bundle"/dmg/*.dmg release/ahem-macos-arm64.dmg
+            cp "$bundle"/macos/*.app.tar.gz "$bundle"/macos/*.app.tar.gz.sig release/
           else
-            cp "$bundle"/nsis/*-setup.exe "$bundle"/nsis/*-setup.exe.sig release/
+            # The updater checks the signature against the bytes, not the name, so the .sig is renamed too.
+            cp "$bundle"/nsis/*-setup.exe release/ahem-windows-x64-setup.exe
+            cp "$bundle"/nsis/*-setup.exe.sig release/ahem-windows-x64-setup.exe.sig
           fi
           ls -l release
 
