@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    /* `tsc -b` checks vite.config.ts; what it writes stays out of the sources. */
+    "emitDeclarationOnly": true,
+    "outDir": "./node_modules/.tmp/tsconfig.node",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}

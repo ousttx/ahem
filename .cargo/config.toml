@@ -1,0 +1,10 @@
+# sherpa-onnx: the build takes the official prebuilt libraries from
+# runtimes/sherpa-onnx, fetched and checked by tools/fetch-sherpa-onnx (.sh, .ps1), instead of letting
+# the sherpa-onnx-sys build script download them without a checksum.
+[env]
+SHERPA_ONNX_ARCHIVE_DIR = { value = "runtimes/sherpa-onnx", relative = true }
+
+# The prebuilt Windows libraries use the static C runtime (/MT); linking them into a /MD
+# program mixes two runtimes (LNK4098), so the whole app uses the static one.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

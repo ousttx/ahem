@@ -1,0 +1,6 @@
+# Both panic when standard error cannot be written, and a release build's is `logs/app.log`:
+# a full disk would take down the thread that only wanted to say so. `log_line!` instead.
+disallowed-macros = [
+    { path = "std::eprintln", reason = "panics on a failing standard error; use log_line!" },
+    { path = "std::eprint", reason = "panics on a failing standard error; use log_line!" },
+]

@@ -1,0 +1,19 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+node_modules
+dist
+# project-local Rust toolchain (RUSTUP_HOME / CARGO_HOME)
+.rust
+# engine builds, test models and audio (tools/build-engine, tools/fetch-*, ignored tests);
+# anchored: src-tauri/src/runtimes/ is source code
+/runtimes
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?

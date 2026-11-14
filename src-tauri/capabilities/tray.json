@@ -1,0 +1,34 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "tray",
+  "description": "The quick panel calls the commands it uses, listens to events and opens web links (the changes of a new version)",
+  "windows": [
+    "tray"
+  ],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "opener:allow-open-url",
+    "opener:allow-default-urls",
+    "allow-system-locales",
+    "allow-get-settings",
+    "allow-save-settings",
+    "allow-get-last-result",
+    "allow-retry-available",
+    "allow-retry-dictation",
+    "allow-list-input-devices",
+    "allow-list-models",
+    "allow-list-cloud-engines",
+    "allow-fit-tray-panel",
+    "allow-hide-tray-panel",
+    "allow-open-main-window",
+    "allow-quit-app",
+    "allow-start-meeting",
+    "allow-stop-meeting",
+    "allow-get-meetings",
+    "allow-get-history",
+    "allow-get-stats",
+    "allow-get-status",
+    "allow-install-update"
+  ]
+}

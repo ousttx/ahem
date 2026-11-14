@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- macOS: merged into the app's Info.plist by Tauri (also embedded in development builds).
+     Without the microphone description macOS refuses recording; without the audio capture
+     description it refuses to record the computer's sound for a meeting.
+     LSEnvironment: freed memory goes back to the system at once (checked by a test of `platform`). -->
+<plist version="1.0">
+<dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>ahem records your voice when you dictate or record a meeting, and turns it into text.</string>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>MallocSpaceEfficient</key>
+		<string>1</string>
+	</dict>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>ahem records the sound of a meeting you record, to transcribe it.</string>
+</dict>
+</plist>

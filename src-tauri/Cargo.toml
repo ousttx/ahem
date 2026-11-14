@@ -1,0 +1,192 @@
+[package]
+name = "ahem"
+version = "0.1.0"
+description = "ahem — dictation that types where your cursor is"
+authors = ["ousttx"]
+license = "GPL-3.0-only"
+repository = "https://github.com/ousttx/ahem"
+homepage = "https://useahem.app"
+edition = "2024"
+# The oldest Rust that Tauri 2.12 and its plugins build with.
+rust-version = "1.90"
+
+[lib]
+# A name of its own: the program is `ahem`.
+name = "ahem_lib"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-autostart = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sys-locale = "0.3"
+# HTTPS with OS certificate verification; no bundled webpki-roots (CDLA license).
+ureq = { version = "3.5", default-features = false, features = ["rustls-no-provider", "platform-verifier"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+sha2 = "0.10"
+getrandom = "0.3"
+# AES-256-GCM for sealing API keys on macOS; RS256 checks of ChatGPT's ID tokens everywhere.
+# Already in the tree through rustls.
+ring = "0.17"
+fs4 = "1.1"
+tauri-plugin-global-shortcut = "2.4"
+cpal = "0.18"
+# History, statistics and meetings; SQLite compiled from the bundled source, no system library.
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+# File transcription: pure-Rust decoding (MPL-2.0); only the containers and codecs needed.
+symphonia = { version = "0.6.1", default-features = false, features = [
+    "wav",
+    "aiff",
+    "pcm",
+    "adpcm",
+    "mp3",
+    "isomp4",
+    "aac",
+    "alac",
+    "flac",
+    "ogg",
+    "vorbis",
+    "mkv",
+    "all-meta",
+] }
+# Opus for symphonia: the reference libopus (BSD-3-Clause), built from bundled source with CMake.
+symphonia-adapter-libopus = "0.3"
+# The libopus encoder of the same build: meeting recordings and Opus test files.
+opusic-sys = "0.7"
+# Open and save dialogs for file transcription.
+tauri-plugin-dialog = "2"
+# Second speech engine, linked in: official prebuilt libraries checked by
+# tools/fetch-sherpa-onnx (.sh, .ps1). Keep the version in step with those scripts.
+sherpa-onnx = "=2.0.0"
+# Its C API directly, for what the crate does not pass on (the speaker diarization's progress).
+sherpa-onnx-sys = "=2.0.0"
+# The local date and time that names a meeting's folder.
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+# Unpacking sherpa-onnx model archives (.tar.bz2).
+tar = { version = "0.4", default-features = false }
+bzip2 = "0.6"
+tauri-plugin-updater = { version = "2.14.1", default-features = false, features = ["zip", "native-tls"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_Media_Audio",
+    "Win32_Media_Audio_Endpoints",
+    "Win32_Security",
+    "Win32_Security_Cryptography",
+    "Win32_System_Com",
+    # IMMDevice::Activate.
+    "Win32_System_Com_StructuredStorage",
+    # SetStdHandle: the app's log in place of the console a built app has not.
+    "Win32_System_Console",
+    "Win32_System_DataExchange",
+    "Win32_System_Memory",
+    # IUIAutomationTextRange::GetAttributeValue.
+    "Win32_System_Ole",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_System_Variant",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+# macOS platform layer: system APIs through the objc2 bindings Tauri and cpal already use.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-core-foundation = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "CFBase",
+    "CFDictionary",
+    "CFNumber",
+    "CFString",
+] }
+# Typing text (CGEvent) and the state of the modifier keys.
+objc2-core-graphics = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "CGEvent",
+    "CGEventSource",
+    "CGEventTypes",
+    "CGRemoteOperation",
+] }
+# Accessibility: the focused window and field, the selected text, the permission check.
+objc2-application-services = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "libc",
+    "HIServices",
+    "AXError",
+    "AXUIElement",
+    "AXValue",
+] }
+# The frontmost application without the Accessibility permission, and the focus given back to
+# it after the quick panel; the clipboard's text; the Dock icon when run without a bundle; the
+# capsule and the quick panel as panels that do not activate ahem (`NSWindow`).
+objc2-app-kit = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "libc",
+    "NSApplication",
+    "NSImage",
+    "NSPasteboard",
+    "NSPasteboardItem",
+    "NSResponder",
+    "NSRunningApplication",
+    "NSWindow",
+    "NSWorkspace",
+] }
+# Saving and restoring the clipboard around a copied selection: Objective-C arrays and data;
+# the main bundle's path; the dictionaries, numbers and UUIDs of the meeting tap and the macOS
+# version it needs; free disk space as Finder counts it (`NSURL`, `NSError`). `objc2` also puts
+# the capsule's and the quick panel's answer in place of NSWindow's `_isNonactivatingPanel`.
+objc2 = "0.6"
+# The answer of the system's microphone request comes to a block.
+block2 = "0.6"
+objc2-foundation = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "NSArray",
+    "NSBundle",
+    "NSData",
+    "NSDictionary",
+    "NSError",
+    "NSProcessInfo",
+    "NSString",
+    "NSURL",
+    "NSUUID",
+    "NSValue",
+] }
+# Muting the default output device; the tap that records the computer's sound.
+objc2-core-audio = { version = "0.3.2", default-features = false, features = [
+    "std",
+    "AudioHardware",
+    "objc2",
+    "objc2-foundation",
+] }
+# The key that seals API keys lives in the login Keychain; the sealing is AES-256-GCM.
+security-framework = "3.7"
+
+[dev-dependencies]
+# Generates the key that signs the test ID token (the ChatGPT sign-in tests).
+rsa = { version = "0.9", default-features = false, features = ["std", "sha2"] }
+
+# bzip2 decompression is slow unoptimized: development builds unpacked a model archive in about
+# a minute; optimized, in a fraction of that.
+[profile.dev.package.libbz2-rs-sys]
+opt-level = 3
+
+# Generating an RSA key is slow unoptimized.
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
+
+# Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+# Panics unwind (not "abort", which saves some size): a panic in one thread, such as a decoder on
+# a damaged file, fails that work and does not close the app with a meeting being recorded.
+panic = "unwind"
+strip = true

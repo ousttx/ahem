@@ -1,0 +1,12 @@
+# Same line endings on Windows, macOS and Linux: LF in the repository and working copy.
+* text=auto eol=lf
+
+# cmd.exe needs CRLF; PowerShell scripts keep Windows endings too.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary
+*.ico binary
+*.icns binary
+*.wav binary

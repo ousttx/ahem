@@ -1,0 +1,326 @@
+/* The quick panel's window is transparent: only the panel is visible. It has no shadow, only a
+   hairline edge so it does not merge with the taskbar or the desktop. The 16 px margin keeps it
+   off the taskbar and the screen edges; the window takes the panel's height, at most the
+   screen's work area (`tray_panel.rs`), and a taller panel scrolls. On macOS it hangs from the
+   menu bar as its menus do: 1 pt below it and 5 pt left of the icon (`tray_panel.rs`), so the
+   margin is 1 px all around, for the hairline (`platform::TRAY_PANEL_MARGIN`). */
+html,
+body,
+#root {
+  height: auto;
+  min-height: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+#root {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* `position`: "What's new" inside the panel stays within it (the end of this file). */
+.quick {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 360px;
+  margin: 16px;
+  padding: 12px;
+  border-radius: 25px;
+  background: var(--bg);
+  box-shadow: 0 0 0 1px var(--border);
+  color: var(--text);
+  letter-spacing: -0.25px;
+}
+
+:root[data-os="mac"] .quick {
+  margin: 1px;
+}
+
+.quick-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 0 6px;
+}
+
+.quick-brand {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* The period of the app icon, as in the main window's menu. */
+.quick-brand::after {
+  content: ".";
+  margin-left: 0.06em;
+  color: var(--signal);
+}
+
+.quick-card {
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.quick-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.quick-state-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quick-state-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.quick-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.quick-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.quick-dot.live {
+  background: var(--signal);
+}
+
+.quick-level {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.quick-level > span {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--chip);
+  transition: height 80ms linear;
+}
+
+.quick-level > span.live {
+  background: var(--signal);
+}
+
+.quick-modes-wrap {
+  position: relative;
+}
+
+.quick-modes {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+/* The chosen mode's copy covers its button: the focus frame goes around it. */
+.quick-modes .chip[aria-checked="true"]:focus-visible {
+  outline-offset: 2px;
+}
+
+/* A long mode name ends in an ellipsis within the panel. */
+.quick-modes .chip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 5px 14px;
+  font-size: 13px;
+}
+
+.quick-modes .chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The same chips in the chosen look over the others, cut down to the chosen one (`useThumb`
+   with `clip`); the cut slides when the mode changes. */
+.quick-modes-chosen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: clip-path var(--d3) var(--ease);
+}
+
+/* `letter-spacing`: as the buttons under the copy, which do not take the panel's from `.quick`
+   (the web view's defaults for buttons: WebKit, WebView2); else the copy is narrower than the
+   chosen button, and the button shows at its right end, with its focus ring after a key. */
+.quick-modes-chosen .chip {
+  background: var(--accent);
+  color: var(--accent-fg);
+  letter-spacing: normal;
+}
+
+.quick-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+}
+
+.quick-stats {
+  margin: 0;
+  padding: 0 10px;
+}
+
+.quick-row {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+}
+
+.quick-row .select {
+  width: 100%;
+}
+
+.quick-last {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+}
+
+.quick-last-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quick-last p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.quick-recent {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 8px;
+  list-style: none;
+}
+
+.quick-recent li {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  gap: 10px;
+  padding: 7px 2px;
+  font-size: 13px;
+}
+
+.quick-recent li + li {
+  border-top: 1px solid var(--hairline);
+}
+
+/* A new dictation in the list rises in on a plate in the accent color that fades, as in the history. */
+.quick-recent li.fresh {
+  animation: rise-in var(--d2) var(--ease-out);
+}
+
+.quick-recent li.fresh::before {
+  content: "";
+  position: absolute;
+  inset: 1px -8px;
+  z-index: -1;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--signal) 20%, transparent);
+  opacity: 0;
+  animation: glow 1400ms var(--ease-out);
+}
+
+.quick-recent-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Recognize again" sits in a card laid out as the meeting recording's. */
+.quick-meeting,
+.quick-retry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+}
+
+/* The label and the button keep their row; a failure takes a line of its own under them, as
+   a refused choice does under the microphone and the model. */
+.quick-meeting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: 4px;
+}
+
+.quick-meeting-failure {
+  grid-column: 1 / -1;
+}
+
+.quick-meeting-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.quick-meeting-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.quick-footer {
+  display: flex;
+  gap: 6px;
+}
+
+.quick-footer .btn {
+  min-height: 34px;
+  font-size: 13px;
+}
+
+.quick-footer .btn.primary {
+  flex: 1;
+}
+
+/* "What's new" inside the panel: the shade stays within its rounded edges, the window around
+   them is transparent. */
+.quick .modal-backdrop {
+  position: absolute;
+  border-radius: 25px;
+}
+
+.quick .modal {
+  width: calc(100% - 24px);
+}

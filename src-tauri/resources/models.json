@@ -1,0 +1,167 @@
+{
+  "models": [
+    {
+      "id": "whisper-large-v3",
+      "name": "Whisper Large v3",
+      "author": "OpenAI",
+      "license": "MIT",
+      "file": "ggml-large-v3.bin",
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3.bin",
+      "size": 3095033483,
+      "sha256": "64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2",
+      "translate": true,
+      "hardware": { "kind": "gpu", "memory_gb": 6 }
+    },
+    {
+      "id": "whisper-large-v3-turbo",
+      "name": "Whisper Large v3 Turbo",
+      "author": "OpenAI",
+      "license": "MIT",
+      "file": "ggml-large-v3-turbo.bin",
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3-turbo.bin",
+      "size": 1624555275,
+      "sha256": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
+      "translate": false,
+      "hardware": { "kind": "gpu", "memory_gb": 4 }
+    },
+    {
+      "id": "whisper-medium",
+      "name": "Whisper Medium",
+      "author": "OpenAI",
+      "license": "MIT",
+      "file": "ggml-medium.bin",
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-medium.bin",
+      "size": 1533763059,
+      "sha256": "6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208",
+      "translate": true,
+      "hardware": { "kind": "gpu", "memory_gb": 4 }
+    },
+    {
+      "id": "qwen3-asr-1_7b",
+      "name": "Qwen3-ASR 1.7B",
+      "author": "Alibaba Qwen",
+      "license": "Apache-2.0",
+      "file": "Qwen3-ASR-1.7B-Q8_0.gguf",
+      "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf",
+      "size": 2165034944,
+      "sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57",
+      "translate": false,
+      "languages": ["zh", "en", "yue", "ar", "de", "fr", "es", "pt", "id", "it", "ko", "ru", "th", "vi", "ja", "tr", "hi", "ms", "nl", "sv", "da", "fi", "pl", "cs", "tl", "fa", "el", "hu", "mk", "ro"],
+      "hardware": { "kind": "cpu" },
+      "llama": {
+        "mmproj": {
+          "file": "mmproj-Qwen3-ASR-1.7B-Q8_0.gguf",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/mmproj-Qwen3-ASR-1.7B-Q8_0.gguf",
+          "size": 355709344,
+          "sha256": "46c1d533af3f354ceb37ce855dbceff7da7fa7cf1e6a523df3b13440bd164c0d"
+        },
+        "reply": "qwen3_asr"
+      }
+    },
+    {
+      "id": "qwen3-asr-0_6b",
+      "name": "Qwen3-ASR 0.6B",
+      "author": "Alibaba Qwen",
+      "license": "Apache-2.0",
+      "file": "Qwen3-ASR-0.6B-Q8_0.gguf",
+      "url": "https://huggingface.co/ggml-org/Qwen3-ASR-0.6B-GGUF/resolve/928ab958557df9aa2ef1c93e0e83c7ad0933fae2/Qwen3-ASR-0.6B-Q8_0.gguf",
+      "size": 804749248,
+      "sha256": "bca259818b50ca7c4c05e9bdb35a5dc04fa039653a6d6f3f0f331f96f6aa1971",
+      "translate": false,
+      "languages": ["zh", "en", "yue", "ar", "de", "fr", "es", "pt", "id", "it", "ko", "ru", "th", "vi", "ja", "tr", "hi", "ms", "nl", "sv", "da", "fi", "pl", "cs", "tl", "fa", "el", "hu", "mk", "ro"],
+      "hardware": { "kind": "cpu" },
+      "llama": {
+        "mmproj": {
+          "file": "mmproj-Qwen3-ASR-0.6B-Q8_0.gguf",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-0.6B-GGUF/resolve/928ab958557df9aa2ef1c93e0e83c7ad0933fae2/mmproj-Qwen3-ASR-0.6B-Q8_0.gguf",
+          "size": 214392480,
+          "sha256": "41a342b5e4c514e968cb756de6cd1b7be39eff43c44c57a2ef5fc6522e36603d"
+        },
+        "reply": "qwen3_asr"
+      }
+    },
+    {
+      "id": "parakeet-tdt-0_6b-v3",
+      "name": "Parakeet TDT 0.6B v3",
+      "author": "NVIDIA",
+      "license": "CC-BY-4.0",
+      "file": "sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2",
+      "size": 487211443,
+      "sha256": "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9",
+      "translate": false,
+      "languages": ["bg", "hr", "cs", "da", "nl", "en", "et", "fi", "fr", "de", "el", "hu", "it", "lv", "lt", "mt", "pl", "pt", "ro", "sk", "sl", "es", "sv", "ru", "uk"],
+      "hardware": { "kind": "cpu" },
+      "sherpa": {
+        "recognizer": "offline_transducer",
+        "model_type": "nemo_transducer",
+        "encoder": "encoder.int8.onnx",
+        "decoder": "decoder.int8.onnx",
+        "joiner": "joiner.int8.onnx",
+        "tokens": "tokens.txt"
+      }
+    },
+    {
+      "id": "nemotron-3_5-asr-streaming-0_6b",
+      "name": "Nemotron 3.5 Streaming 0.6B",
+      "author": "NVIDIA",
+      "license": "OpenMDW-1.1",
+      "file": "sherpa-onnx-nemotron-3.5-asr-streaming-0.6b-560ms-int8-2026-06-11.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemotron-3.5-asr-streaming-0.6b-560ms-int8-2026-06-11.tar.bz2",
+      "size": 475271763,
+      "sha256": "c6bf5e0df765f9d5b43bc9e0536d4b4b3e7d40bdf5ecf13e45f134c51c05ae3a",
+      "translate": false,
+      "languages": ["en", "es", "fr", "it", "pt", "nl", "de", "tr", "ru", "ar", "hi", "ja", "ko", "vi", "uk", "pl", "sv", "cs", "no", "da", "bg", "fi", "hr", "sk", "zh", "hu", "ro", "et"],
+      "hardware": { "kind": "cpu" },
+      "sherpa": {
+        "recognizer": "online_transducer",
+        "encoder": "encoder.int8.onnx",
+        "decoder": "decoder.int8.onnx",
+        "joiner": "joiner.int8.onnx",
+        "tokens": "tokens.txt"
+      }
+    },
+    {
+      "id": "gigaam-v3-e2e-rnnt",
+      "name": "GigaAM v3 E2E RNN-T",
+      "author": "Sber",
+      "license": "MIT",
+      "file": "sherpa-onnx-nemo-transducer-punct-giga-am-v3-russian-2025-12-16.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-transducer-punct-giga-am-v3-russian-2025-12-16.tar.bz2",
+      "size": 170197019,
+      "sha256": "f9620a0099019c6afcee26525ef9ed3297fa50dd5691c1902af0c948fc1a470b",
+      "translate": false,
+      "languages": ["ru"],
+      "hardware": { "kind": "cpu" },
+      "sherpa": {
+        "recognizer": "offline_transducer",
+        "model_type": "nemo_transducer",
+        "encoder": "encoder.int8.onnx",
+        "decoder": "decoder.onnx",
+        "joiner": "joiner.onnx",
+        "tokens": "tokens.txt"
+      }
+    },
+    {
+      "id": "gigaam-v3-rnnt",
+      "name": "GigaAM v3 RNN-T",
+      "author": "Sber",
+      "license": "MIT",
+      "file": "sherpa-onnx-nemo-transducer-giga-am-v3-russian-2025-12-16.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-transducer-giga-am-v3-russian-2025-12-16.tar.bz2",
+      "size": 167388020,
+      "sha256": "20a439491904b839f35eb8efaa3d99cbfaaad0c6dcba22d06ff218bb0056772d",
+      "translate": false,
+      "languages": ["ru"],
+      "hardware": { "kind": "cpu" },
+      "sherpa": {
+        "recognizer": "offline_transducer",
+        "model_type": "nemo_transducer",
+        "encoder": "encoder.int8.onnx",
+        "decoder": "decoder.onnx",
+        "joiner": "joiner.onnx",
+        "tokens": "tokens.txt"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2512 @@
+/* Design tokens and rules of the window. Sizes are CSS pixels; on Windows the backend zooms
+   the page 1.2 times (`platform::UI_ZOOM`). */
+
+:root {
+  color-scheme: light;
+  --bg: #f7f7f7;
+  --surface: #fdfdfd;
+  --stage-inner: #f7f7f7;
+  --border: #d8d8d8;
+  --hairline: #e6e6e6;
+  --text: #0a0a0a;
+  --text-muted: #5f5f5f;
+  --text-faint: #9d9d9d;
+  --accent: #0a0a0a;
+  --accent-fg: #f7f7f7;
+  --blush: #ff5a00;
+  --ok: #ff5a00;
+  --signal: #ff5a00;
+  --key-bg: #f7f7f7;
+  --selection: rgba(10, 10, 10, 0.05);
+  --segment: #fdfdfd;
+  --chip: #e4e4e4;
+  --field: #f7f7f7;
+  --blush-soft: rgba(255, 90, 0, 0.12);
+  --accent-disabled: rgba(10, 10, 10, 0.35);
+  --ok-soft: rgba(255, 90, 0, 0.16);
+  /* The accent says "look here": what is live (ready, recording, a running progress), what
+     went wrong or waits for the user, and one mark of identity (the period of the brand, the
+     main mode, the user's own turns). Links, informational badges and finished things stay in
+     the text colors. `--mark` is the solid disc with a dark sign. */
+  --mark: #ff5a00;
+  --mark-glyph: #0a0a0a;
+  --shadow-float: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 12px 40px rgba(51, 51, 51, 0.22);
+  --mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  /* Windows 11 draws its own interface in Segoe UI Variable: its Text cut is made for small sizes
+     on screen, its Display cut for titles. Windows 10 falls back to Segoe UI. */
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, Ubuntu, Cantarell, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, Ubuntu, Cantarell, sans-serif;
+  /* Motion: the animations take their timing from these. Mostly transform, opacity and
+     clip-path move; sizes move where the size is the point (level and progress bars, the pill of
+     the open section, a check that comes in). With the system's reduced motion everything stops
+     (the end of this file). The capsule has the same tokens in indicator.css. */
+  /* A calm character: no spring, short. */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1); /* highlights that move */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); /* appearing, colors */
+  --d1: 100ms; /* presses, hovers */
+  --d2: 160ms; /* text changes, appearing */
+  --d3: 220ms; /* moves and size changes */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #080808;
+    --surface: #171717;
+    --stage-inner: #080808;
+    --border: #303030;
+    --hairline: #242424;
+    --text: #f5f5f5;
+    --text-muted: #a4a4a4;
+    --text-faint: #626262;
+    --accent: #f5f5f5;
+    --accent-fg: #080808;
+    --blush: #ff5a00;
+    --ok: #ff5a00;
+    --signal: #ff5a00;
+    --key-bg: #272727;
+    --selection: rgba(245, 245, 245, 0.06);
+    --segment: #373737;
+    --chip: #272727;
+    --field: #222222;
+    --blush-soft: rgba(255, 90, 0, 0.16);
+    --accent-disabled: rgba(245, 245, 245, 0.35);
+    --ok-soft: rgba(255, 90, 0, 0.22);
+    --mark: #ff5a00;
+    --mark-glyph: #0a0a0a;
+    --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #080808;
+  --surface: #171717;
+  --stage-inner: #080808;
+  --border: #303030;
+  --hairline: #242424;
+  --text: #f5f5f5;
+  --text-muted: #a4a4a4;
+  --text-faint: #626262;
+  --accent: #f5f5f5;
+  --accent-fg: #080808;
+  --blush: #ff5a00;
+  --ok: #ff5a00;
+  --signal: #ff5a00;
+  --key-bg: #272727;
+  --selection: rgba(245, 245, 245, 0.06);
+  --segment: #373737;
+  --chip: #272727;
+  --field: #222222;
+  --blush-soft: rgba(255, 90, 0, 0.16);
+  --accent-disabled: rgba(245, 245, 245, 0.35);
+  --ok-soft: rgba(255, 90, 0, 0.22);
+  --mark: #ff5a00;
+  --mark-glyph: #0a0a0a;
+  --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--sans);
+  letter-spacing: -0.1px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--bg);
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Filled with the accent (or as dark), a frame inside would not show: it goes around them. */
+.btn.primary:focus-visible,
+.toggle.on:focus-visible,
+.chip.checked:focus-visible,
+.chatgpt-button:focus-visible,
+.radio-button[aria-checked="true"]:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Around the chosen radio, the frame is round like it. */
+.radio-button[aria-checked="true"]:focus-visible {
+  border-radius: 50%;
+}
+
+/* Said by screen readers, not shown. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.selectable {
+  user-select: text;
+  overflow-wrap: anywhere;
+}
+
+/* Text roles */
+
+.page-title {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.9px;
+}
+
+/* A link to another page puts the focus on its title for screen readers; the title shows no
+   frame for it. Nor does a card's title that takes the focus from a button gone with an action. */
+.page-title:focus-visible,
+.card-title:focus-visible,
+.hero-title:focus-visible {
+  outline: none;
+}
+
+.hero-title {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.caption {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.section-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.small-strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.accent-text {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.warning-text {
+  color: var(--blush);
+}
+
+.badge {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 20px;
+  color: var(--ok);
+  background: var(--ok-soft);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.key-meta {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.cap-chip {
+  padding: 1px 8px;
+  border-radius: 20px;
+  color: var(--text-muted);
+  background: var(--chip);
+  font-size: 11px;
+}
+
+.tone-text {
+  color: var(--text);
+}
+.tone-accent {
+  color: var(--accent);
+}
+.tone-muted {
+  color: var(--text-muted);
+}
+.tone-faint {
+  color: var(--text-faint);
+}
+.tone-danger {
+  color: var(--blush);
+}
+.tone-ok {
+  color: var(--ok);
+}
+
+.icon {
+  flex: none;
+  display: block;
+}
+
+/* Window */
+
+.window {
+  display: flex;
+  height: 100%;
+}
+
+.nav-pane {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 212px;
+  padding: 10px 12px 14px;
+}
+
+/* macOS: the system window buttons stand in the top left corner (`trafficLightPosition`), the
+   brand below them; the strip above the brand drags the window. */
+.nav-pane-mac {
+  padding-top: 0;
+}
+
+.nav-top {
+  flex: none;
+  height: 44px;
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+/* "Work" and "Setup": a quiet label over each group of sections. */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-group + .nav-group {
+  margin-top: 10px;
+}
+
+.nav-group-label {
+  padding: 4px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* A little larger than the page titles; on one line with the window buttons of the title bar. */
+.nav-brand {
+  padding: 1px 12px 12px;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.9px;
+}
+
+/* The period of the app icon ("a."), a little apart from the tight letters. */
+.nav-brand::after {
+  content: ".";
+  margin-left: 0.06em;
+  color: var(--signal);
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-badge {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  text-align: left;
+}
+
+.nav-item:hover {
+  background: var(--selection);
+}
+
+.nav-item.active {
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.engine-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.status-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* A ready engine needs no attention: the accent is for one that is missing. */
+.status-dot.tone-ok {
+  color: var(--text);
+}
+
+/* A new version: in the menu above the model's state and in the quick panel; never a system
+   notification. The dot is the accent: something to do. */
+.update-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.update-nav {
+  margin-bottom: 6px;
+}
+
+.update-nav .btn.compact {
+  align-self: stretch;
+  margin-top: 2px;
+}
+
+.update-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 18px;
+}
+
+.update-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.update-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+.update-card .icon-button {
+  margin: -4px -6px -4px 0;
+}
+
+.update-card .btn.link {
+  align-self: flex-start;
+  font-size: 12px;
+}
+
+/* "What's new": the changes of the version just installed. */
+.whats-new-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+  line-height: 1.45;
+}
+
+.whats-new-notes p {
+  margin: 0;
+}
+
+.whats-new-notes ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.whats-new-notes li::marker {
+  color: var(--signal);
+}
+
+/* The quick panel: one row, the action at the right. */
+.update-quick {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  padding: 10px 10px 10px 14px;
+}
+
+.update-quick > .update-head,
+.update-quick > .caption,
+.update-quick > .progress {
+  grid-column: 1;
+}
+
+.update-quick > .update-actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.update-quick .update-actions .icon-button {
+  margin: 0 -4px 0 0;
+}
+
+.engine-status-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.content-layer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--stage-inner);
+  overflow: hidden;
+}
+
+/* The main window's own title bar: the strip drags the window; on Windows and Linux the buttons
+   stand on one line with the brand of the navigation, on macOS the strip is empty. */
+.title-bar {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 2px;
+  height: 44px;
+  padding: 12px 8px 0;
+}
+
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.page-scroll[hidden] {
+  display: none;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+  padding: 22px 28px 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-header > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* No scrollbars: areas scroll with the wheel, the touchpad and the keyboard. */
+::-webkit-scrollbar {
+  display: none;
+}
+
+.info-bar-margin {
+  flex: none;
+  padding: 14px 28px 0;
+}
+
+.info-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 8px 10px 16px;
+  border: none;
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.info-bar.error {
+  background: var(--blush-soft);
+}
+
+.info-bar > .icon {
+  margin-top: 2px;
+}
+
+.info-bar-text {
+  flex: 1;
+  padding-top: 1px;
+  user-select: text;
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: 30px;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 20px;
+  background: var(--chip);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  color: var(--text-faint);
+}
+
+.btn.compact {
+  min-height: 26px;
+  padding: 3px 12px;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+/* An icon in the text color would vanish on the light button: it follows the button's text. */
+.btn.primary .icon.tone-text {
+  color: inherit;
+}
+
+.btn.primary:disabled {
+  border-color: transparent;
+  background: var(--accent-disabled);
+  color: var(--accent-fg);
+}
+
+.btn.large {
+  min-height: 36px;
+  padding: 7px 18px;
+  font-size: 14px;
+}
+
+.btn.link {
+  min-height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* A link the user is expected to follow: a step still to do. */
+.btn.link.attention {
+  color: var(--ok);
+}
+
+/* A link that changes nothing alarming: muted, without the weight of an action. */
+.btn.link.quiet {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.btn.link.quiet:hover {
+  color: var(--text);
+}
+
+.btn.link:disabled {
+  color: var(--text-faint);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--selection);
+}
+
+/* Cards and rows */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 25px;
+  background: var(--surface);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px 8px;
+}
+
+.card-header > .card-title {
+  flex: 1;
+}
+
+.card-header.inline {
+  padding: 0;
+}
+
+.card-note {
+  padding: 6px 20px 14px;
+}
+
+/* "More shortcuts" on the Dictation page: the keys, then what they do; a row opens its mode. */
+.shortcut-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 10px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+}
+
+.shortcut-row:hover {
+  background: var(--selection);
+}
+
+.shortcut-text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card-row {
+  padding: 12px 20px;
+}
+
+.card-row.separator {
+  border-top: 1px solid var(--hairline);
+}
+
+.card-row-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.card-row-control {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-row > textarea,
+.card-row > .key-form {
+  margin-top: 10px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px 4px;
+}
+
+.section-header > .section-label {
+  flex: 1;
+}
+
+/* Inputs */
+
+.select {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.select-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  padding: 0 28px 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--field);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The open list floats over the page, so it has the floating shadow. */
+.select-list {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px;
+  overflow-y: auto;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.select-option {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 0 10px 0 12px;
+  border-radius: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.select-option.active {
+  background: var(--selection);
+}
+
+.select-option[aria-selected="true"] {
+  font-weight: 600;
+}
+
+.select-option[aria-disabled="true"] {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.select-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select > .icon {
+  position: absolute;
+  right: 8px;
+  top: 7px;
+  pointer-events: none;
+}
+
+.select-trigger:disabled {
+  color: var(--text-faint);
+}
+
+.select-trigger:focus-visible,
+.text-input:focus-visible,
+textarea:focus-visible,
+.mode-name:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.text-input,
+textarea {
+  min-height: 30px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--field);
+  user-select: text;
+}
+
+.text-input {
+  width: 280px;
+}
+
+.history-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-limit .history-limit-number {
+  width: 76px;
+  text-align: center;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+}
+
+::placeholder {
+  color: var(--text-faint);
+}
+
+.toggle {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--text-muted);
+  border-radius: 10px;
+  background: transparent;
+}
+
+.toggle .knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.toggle.on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.toggle.on .knob {
+  left: 22px;
+  background: var(--accent-fg);
+}
+
+.toggle:disabled {
+  opacity: 0.45;
+}
+
+.segments {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 20px;
+  background: var(--chip);
+}
+
+.segment {
+  display: inline-grid;
+  padding: 4px 14px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Reserves the bold width so that choosing a segment does not move the others. */
+.segment::after,
+.tab::after {
+  content: attr(data-text);
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+.segment.checked {
+  background: var(--segment);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.radio {
+  flex: none;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 50%;
+}
+
+.radio.checked {
+  border: 5px solid var(--accent);
+}
+
+.radio.unavailable {
+  border-style: dashed;
+  border-color: var(--text-faint);
+}
+
+.radio-button {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.keycaps {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+}
+
+.keycaps kbd,
+.hotkey-caps kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 21px;
+  padding: 0 7px;
+  border: none;
+  border-radius: 7px;
+  background: var(--key-bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.keycaps.large kbd {
+  height: 30px;
+}
+
+.hotkey-field {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  height: 28px;
+}
+
+.hotkey-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 0 10px;
+  border: none;
+  border-radius: 12px;
+  background: var(--field);
+}
+
+.hotkey-field.listening .hotkey-face,
+.hotkey-face:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.hotkey-face:disabled {
+  opacity: 0.45;
+}
+
+.hotkey-caps {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.hotkey-caps kbd {
+  height: 19px;
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.hotkey-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.hotkey-clear {
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--selection);
+}
+
+.tabs {
+  display: flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 20px;
+  background: var(--chip);
+}
+
+.tab {
+  display: inline-grid;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.tab.selected {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.tab:disabled {
+  color: var(--text-faint);
+}
+
+.progress {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  /* Something is running: worth a look. */
+  background: var(--signal);
+  transition: width 120ms linear;
+}
+
+/* Running without a measure of how far: a stretch slides across. */
+.progress.indeterminate > span {
+  width: 30%;
+  animation: progress-slide 1.4s var(--ease) infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress.indeterminate > span {
+    width: 100%;
+    opacity: 0.4;
+    animation: none !important;
+  }
+}
+
+/* Choice rows, step tiles, icon circles */
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 6px;
+}
+
+.choice-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 7px 10px 7px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+}
+
+.choice-row:hover,
+.choice-row.checked {
+  background: var(--selection);
+}
+
+
+.choice-row.checked::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(50% - 8px);
+  width: 3px;
+  height: 16px;
+  border-radius: 1.5px;
+  background: var(--accent);
+}
+
+.choice-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.choice-title,
+.choice-caption {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.choice-row.checked .choice-title {
+  font-weight: 600;
+}
+
+.choice-caption {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* How a mode is started, under its caption: hotkeys and programs. */
+.choice-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.choice-tag {
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.step-tile {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 18px;
+  background: var(--field);
+  text-align: left;
+}
+
+button.step-tile:hover {
+  background: var(--chip);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.icon-circle {
+  flex: none;
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.icon-circle .disc {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+/* Ready, done and recording (the ring): the one solid mark of the accent, with a dark sign on
+   it. A problem keeps the soft disc with its warning sign. */
+.icon-circle.tone-ok .disc,
+.icon-circle.ring .disc {
+  background: var(--mark);
+}
+
+.icon-circle.tone-ok .disc .icon,
+.icon-circle.ring .disc .icon {
+  color: var(--mark-glyph);
+}
+
+.icon-circle.ring {
+  background: color-mix(in srgb, var(--mark) 22%, transparent);
+}
+
+.wave-strip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 150px;
+  height: 28px;
+}
+
+.wave-strip .bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.wave-strip .bar.live {
+  background: var(--signal);
+}
+
+/* Dictation */
+
+.hero-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px 12px 14px;
+}
+
+.hero-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hero-texts .caption {
+  overflow-wrap: anywhere;
+}
+
+/* The note sits left of the keys, on one line with them. */
+.hero-keys {
+  display: flex;
+  flex: none;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 10px;
+}
+
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px 16px;
+}
+
+.pipeline-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pipeline-header > .card-title {
+  flex: 1;
+}
+
+.pipeline-tiles {
+  display: flex;
+  gap: 8px;
+}
+
+/* One line each: a long model name ends in an ellipsis, so the tiles stay level. */
+.step-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: var(--field);
+}
+
+/* The time and its label on one baseline. */
+.stat-saved {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.stat-value {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+.history-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 14px;
+}
+
+/* The entries on the History page: a card with no title above them. */
+.history-list .history-body {
+  padding-top: 14px;
+}
+
+/* A grid of one row, so a new entry can grow from nothing (`.fresh` in the motion rules). */
+.history-entry {
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.history-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.history-entry:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.history-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.history-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-footer {
+  padding-top: 4px;
+}
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+
+.onboarding-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.onboarding-text {
+  flex: 1;
+}
+
+.onboarding-step.done .onboarding-text {
+  color: var(--text-muted);
+}
+
+/* Files */
+
+.files-page {
+  flex: 1;
+}
+
+.file-card.hover {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.file-tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--chip);
+}
+
+.file-names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.file-names > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-progress {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 6px;
+  width: 190px;
+}
+
+.file-progress-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.files-columns {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  min-height: 380px;
+}
+
+.file-result {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.file-processing {
+  flex: none;
+  width: 268px;
+}
+
+.file-processing-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.file-processing-body .select {
+  width: 100%;
+}
+
+.field-label {
+  margin-top: 6px;
+}
+
+.file-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* Meetings */
+.meeting-record-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+}
+
+.meeting-hint {
+  padding: 0 4px;
+}
+
+.meeting-record-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.meeting-timer {
+  flex: none;
+  min-width: 72px;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.meeting-tracks {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.meeting-track {
+  display: grid;
+  grid-template-columns: 96px auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.meeting-record-actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.meeting-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 10px;
+}
+
+.meeting-list > .caption {
+  padding: 4px 12px 6px;
+}
+
+.meeting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: none;
+  border-top: 1px solid var(--hairline);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.meeting-row:first-child {
+  border-top: none;
+}
+
+.meeting-row:hover {
+  border-radius: 12px;
+  background: var(--selection);
+}
+
+.meeting-row-title,
+.meeting-row-preview {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.meeting-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.meeting-title {
+  cursor: text;
+}
+
+.meeting-title-input {
+  width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--field);
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.9px;
+}
+
+.meeting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.meeting-actions-spacer {
+  flex: 1;
+}
+
+/* The entry's links under its tools: one line, Delete at the far end. */
+.meeting-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  padding: 12px 20px;
+}
+
+.meeting-actions + .meeting-links {
+  border-top: 1px solid var(--hairline);
+}
+
+.meeting-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.meeting-turns {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 20px 12px;
+}
+
+.meeting-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.meeting-turn:first-child {
+  border-top: none;
+}
+
+.meeting-turn.me .strong {
+  color: var(--ok);
+}
+
+.meeting-turn-text {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Transcripts: meetings and files in one list */
+.page[hidden] {
+  display: none;
+}
+
+.transcripts-start.hover {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.transcripts-divider {
+  height: 1px;
+  margin: 0 16px;
+  background: var(--hairline);
+}
+
+.meeting-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.badge.neutral {
+  color: var(--text-muted);
+  background: var(--chip);
+}
+
+.meeting-processed {
+  padding: 0 20px 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 20px;
+  background: var(--chip);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.chip.checked {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.chip:disabled:not(.checked) {
+  color: var(--text-faint);
+}
+
+/* Modes */
+
+.modes-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.modes-list {
+  flex: none;
+  width: 244px;
+}
+
+.modes-list .choice-list {
+  padding: 6px 6px 8px;
+}
+
+.modes-editor {
+  flex: 1;
+  min-width: 0;
+}
+
+.mode-editor {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 14px;
+}
+
+.mode-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.mode-name {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--field);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  user-select: text;
+}
+
+.mode-name:read-only {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+}
+
+.editor-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.editor-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.editor-row.stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.processing {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 0 10px;
+}
+
+.model-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.model-choice > .select {
+  flex: 1;
+}
+
+.instruction {
+  height: 96px;
+}
+
+.editor-section {
+  margin-top: 6px;
+  padding-bottom: 2px;
+}
+
+.editor-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.main-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Settings */
+
+.settings-page {
+  gap: 14px;
+}
+
+.tab-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.model-rows {
+  padding-bottom: 6px;
+}
+
+.model-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 8px 18px;
+}
+
+.model-row > .radio-button {
+  margin-top: 2px;
+}
+
+.model-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.model-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.model-progress > .progress {
+  width: 200px;
+}
+
+.model-more {
+  border-top: 1px solid var(--hairline);
+}
+
+.model-more > summary {
+  padding: 12px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.model-more[open] > summary {
+  padding-bottom: 4px;
+}
+
+.model-folders {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 8px 18px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.model-folders > .folder-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-folders > .folder-failure {
+  flex-basis: 100%;
+}
+
+.model-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  min-height: 24px;
+}
+
+.languages summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.languages p {
+  margin-top: 4px;
+  user-select: text;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 122px;
+  height: 30px;
+  border: none;
+  border-radius: 20px;
+  background: var(--field);
+}
+
+.stepper > button {
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+}
+
+.stepper > button:disabled {
+  color: var(--text-faint);
+}
+
+.dictionary {
+  min-height: 64px;
+}
+
+/* One grid for all replacement rows, so the columns line up. */
+.replacements {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) auto minmax(0, 3fr) auto;
+  align-items: start;
+  gap: 8px;
+  padding: 0 20px 16px;
+}
+
+.replacement {
+  display: contents;
+}
+
+.replacements .text-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.replacements textarea {
+  resize: none;
+}
+
+.replacement-arrow {
+  line-height: 30px;
+  color: var(--text-muted);
+}
+
+.monogram {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.service-row .card-row-main {
+  gap: 14px;
+}
+
+.service-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-status {
+  margin: 6px 0 0 46px;
+}
+
+.key-form {
+  display: flex;
+  gap: 8px;
+}
+
+.key-form > .text-input {
+  flex: 1;
+  width: auto;
+}
+
+/* The key form under a service, aligned with its name. */
+.key-form.service-form {
+  margin: 8px 0 0 46px;
+}
+
+.own-added {
+  margin-left: 12px;
+}
+
+/* The services of a new mode, inside its editor. */
+.nested-services {
+  margin-bottom: 4px;
+}
+
+.editor-note {
+  margin-bottom: 8px;
+}
+
+/* A service's mark: one color, the text's, like the rest of the interface. */
+.monogram.service-mark {
+  color: var(--text);
+}
+
+.cap-chip.recommended {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ChatGPT through the account: OpenAI's approved black button with the white logo, in both themes. */
+
+.chatgpt-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #000000;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chatgpt-button:disabled {
+  opacity: 0.5;
+}
+
+:root[data-theme="dark"] .chatgpt-button {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chatgpt-button {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+  }
+}
+
+.plan-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 22px;
+  border-radius: 25px;
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Modes by application */
+
+.app-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.app-chips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 12px;
+}
+
+.app-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-add .text-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.mode-name-text {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Motion. The look stays; only movement is added, timed by the tokens at the top. */
+
+/* Sections: the open one's pill slides to the one chosen; a page rises in. */
+.nav-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 20px;
+  background: var(--surface);
+  pointer-events: none;
+  transition:
+    transform var(--d3) var(--ease),
+    width var(--d3) var(--ease),
+    height var(--d3) var(--ease),
+    opacity var(--d2) var(--ease-out);
+}
+
+/* Above the sliding pill; so are the update and engine cards it passes on its way to the
+   settings. */
+.nav-item,
+.update-nav,
+.engine-status {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-item.active,
+.nav-item.active:hover {
+  background: transparent;
+}
+
+.page-scroll > * {
+  animation: rise-in var(--d2) var(--ease-out);
+}
+
+/* The keys of the main hotkey go down with it; the recording circle lights up. */
+.keycaps kbd {
+  transition:
+    transform var(--d1) var(--ease-out),
+    background-color var(--d1) var(--ease-out);
+}
+
+.keycaps.pressed kbd {
+  transform: translateY(1.5px) scale(0.95);
+  background: var(--chip);
+}
+
+.keycaps.tap kbd {
+  animation: key-tap 280ms var(--ease-out);
+}
+
+.icon-circle.ring .disc {
+  animation: ring-flash var(--d3) var(--ease);
+}
+
+.wave-strip .bar {
+  transition: height 80ms linear;
+}
+
+/* Copy: a check comes in before the label. */
+.copy-button {
+  gap: 0;
+}
+
+.copy-button > .icon {
+  max-width: 0;
+  opacity: 0;
+  transition:
+    max-width var(--d2) var(--ease),
+    margin var(--d2) var(--ease),
+    opacity var(--d2) var(--ease-out);
+}
+
+.copy-button.copied > .icon {
+  max-width: 14px;
+  margin-right: 6px;
+  opacity: 1;
+}
+
+.swap {
+  display: inline-block;
+  animation: swap var(--d2) var(--ease-out);
+}
+
+/* A new history entry grows from nothing; a rounded plate in the accent color a little wider than the row
+   holds for a moment behind it and fades. */
+.history-entry {
+  position: relative;
+  isolation: isolate;
+}
+
+.history-entry.fresh {
+  animation: grow var(--d3) var(--ease-out);
+}
+
+.history-entry.fresh > .history-entry-body {
+  overflow: hidden;
+}
+
+.history-entry.fresh::before {
+  content: "";
+  position: absolute;
+  inset: 4px -10px -6px;
+  z-index: -1;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--signal) 20%, transparent);
+  opacity: 0;
+  animation: glow 1400ms var(--ease-out);
+}
+
+.history-entry.fresh:first-child::before {
+  top: -6px;
+}
+
+/* Models: steady digits while downloading; a finished download gets its badge. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.badge.installed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  animation: pop var(--d3) var(--ease);
+}
+
+.badge.installed path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 380ms var(--ease-out) 120ms forwards;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes key-tap {
+  35% {
+    transform: translateY(1.5px) scale(0.95);
+    background: var(--chip);
+  }
+}
+
+@keyframes ring-flash {
+  from {
+    transform: scale(0.8);
+  }
+}
+
+@keyframes swap {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@keyframes grow {
+  from {
+    grid-template-rows: 0fr;
+    padding-top: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0%,
+  35% {
+    opacity: 1;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
+  }
+}

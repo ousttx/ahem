@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ahem",
+  "version": "0.1.0",
+  "identifier": "com.useahem.ahem",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "create": false,
+        "title": "ahem",
+        "width": 1200,
+        "height": 792,
+        "minWidth": 1200,
+        "minHeight": 792,
+        "decorations": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --disable-lcd-text",
+        "visible": false
+      }
+    ],
+    "macOSPrivateApi": true,
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; form-action 'none'",
+      "dangerousDisableAssetCspModification": true
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyNENDRkFDNjk3NUE1ODAKUldTQXBYVnByTTlNWWpGdWNybE1DMjE1SU16VzJYZzFLZVlXN2o0bXpLdEQrWHRMZXBITnhHdmIK"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "ousttx",
+    "copyright": "© 2026 ousttx",
+    "license": "GPL-3.0-only",
+    "category": "Productivity",
+    "shortDescription": "Dictation that types where your cursor is",
+    "longDescription": "Press a hotkey, speak, and the text is typed in any app. Speech is recognized on your computer by default; a cloud service is used only if you choose one.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

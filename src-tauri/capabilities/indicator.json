@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "indicator",
+  "description": "The dictation indicator reads the settings and the OS locales and listens to events; nothing else",
+  "windows": [
+    "indicator"
+  ],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "allow-system-locales",
+    "allow-get-settings"
+  ]
+}
